@@ -1,5 +1,5 @@
 import csv
-from operator import ne
+# Variables Globales
 students = []
 students_names = []
 
@@ -12,6 +12,13 @@ class Student:
         self.score = score
         self.quizes = quizes
 
+    def update_score(self, new_score):
+        self.score = self.score+new_score
+
+    def update_accuracy(self, new_porcent):
+        self.quizes.append(new_porcent)
+        self.accuracy = round((sum(self.quizes) / len(self.quizes)), 2)
+
 
 class Quizes:
 
@@ -20,8 +27,9 @@ class Quizes:
         self.quizes_list = []
 
     def open_files(self):
-
+        # Para cada archivo
         for file in self.files:
+            # Lo abrimos y lo agragamos como una lista que contiene a cada estudiante en una lista con sus datos
             with open(file, newline='') as file:
                 content = csv.reader(file)
                 CSV_toTuple = [list(row) for row in content]
@@ -29,37 +37,63 @@ class Quizes:
         return
 
     def set_students(self):
-
+        # Paraa cada lista revisamos cada estudiante
         for quiz in self.quizes_list:
             for student in quiz[1:len(quiz)]:
-               # if student[1]
+                # Procesamos sus datos y les damos el formato requerido
                 student[4] = int(student[4])
                 porcent = student[3].split()
-                set_porcent = [int(porcent[0]), porcent[1]]
-
+                set_porcent = int(porcent[0])
                 student_name = f"{student[1]} {student[2]}"
+
+                # Si el estudiante  aun no ha sido creado y agregado su nombre completo a la lista entonces lo creamos
                 if student_name not in students_names:
-                    students_names.append(student_name)
-                    new_student = Student(
-                        student[1], student[2], set_porcent, student[4], 1)
-                    students.append(new_student)
-                    print(
-                        f"cree a {new_student.name}  {new_student.last_name} y actualmente tiene estos puntos {new_student.score} y tiene {new_student.accuracy[0]} %")
+                    try:
+                        students_names.append(student_name)
+                        new_student = Student(
+                            student[1], student[2], set_porcent, student[4], [set_porcent])
+                        students.append(new_student)
+
+                    except:
+                        print("An error occurred while creating student")
+
+                # En caso de que ya exista lo actualizamos
                 else:
                     for student_it in students:
-                        if student_it.name == student[1] and student_it.last_name == student[2]:
-                            student_it.score = student_it.score+student[4]
-                            student_it.quizes += 1
-                            student_it.accuracy = [
-                                (student_it.accuracy[0]+set_porcent[0])/student_it.quizes, set_porcent[1]]
 
-                            print(
-                                f"Acrualice los puntos de {student_it.name} {student_it.last_name} y ahora tiene {student_it.score} y {new_student.accuracy[0]} %")
+                        # Iteramos cada Objeto ya creado y si encontramos una coincidencia una coincidencia con el estudiante actual entonces se actualiza
+                        if student_it.name == student[1] and student_it.last_name == student[2]:
+                            student_it.update_score(student[4])
+                            student_it.update_accuracy(set_porcent)
         return
 
-    # def add_up_points(self):
+    def winners(self, number_of_winners):
+        # Ordenamos la lista de participantes de mayor a menor
+        students.sort(reverse=True, key=lambda x: x.score)
+        # Devolevemos la lista con la cantidad de ganadores seleccionados
+        return students[0:number_of_winners]
+
+    def min_accuracy(self, porcent):
+        """"Aqui Verificamos  uno por uno que tenga el porcentaje minimo y lo incluimos en una lista que retornaremos"""
+        aprovated = []
+        for student in students:
+            if student.accuracy >= porcent:
+                aprovated.append(student)
+        return aprovated
 
 
-quiz1 = Quizes(["quiz_1.csv", "quiz_2.csv"])
-quiz1.open_files()
-quiz1.set_students()
+# Archivos para Abrir y formatear
+quiz = Quizes(["quiz_1.csv", "quiz_2.csv", "quiz_3.csv", "quiz_4.csv"])
+quiz.open_files()
+quiz.set_students()
+# Procesar ganadores
+winners = quiz.winners(4)
+aprovados = quiz.min_accuracy(90)
+
+# Imprimir Todos los que aprovaron el minimo de porcentaje
+for aprovado in aprovados:
+    print(f"{aprovado.name} {aprovado.last_name} abtuvo {aprovado.accuracy}%")
+# Imprimir Ganadores
+for winner in winners:
+    print(
+        f"El puesto numero {winners.index(winner)+1} es para: {winner.name} {winner.last_name} con {winner.score}")
