@@ -87,13 +87,15 @@ quiz = Quizes(["quiz_1.csv", "quiz_2.csv", "quiz_3.csv", "quiz_4.csv"])
 quiz.open_files()
 quiz.set_students()
 # Procesar ganadores
-winners = quiz.winners(4)
-aprovados = quiz.min_accuracy(90)
+winners = quiz.winners(2)
+aprobados = quiz.min_accuracy(70)
 
-# Imprimir Todos los que aprovaron el minimo de porcentaje
-for aprovado in aprovados:
-    print(f"{aprovado.name} {aprovado.last_name} abtuvo {aprovado.accuracy}%")
 # Imprimir Ganadores
 for winner in winners:
     print(
         f"El puesto numero {winners.index(winner)+1} es para: {winner.name} {winner.last_name} con {winner.score}")
+
+print("\n")
+# Imprimir Todos los que aprovaron el minimo de porcentaje
+for aprobado in aprobados:
+    print(f"{aprobado.name} {aprobado.last_name} obtuvo {aprobado.accuracy}% de precision")
